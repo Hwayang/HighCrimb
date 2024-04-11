@@ -35,25 +35,13 @@ public class PlayerMovement : MonoBehaviour
         IsCanMovement(receiveMoveMessage);
         float moveControlValue = MoveControl();
 
-        if (isMove)
-        {
-            playerRb.velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * (moveSpeed + moveControlValue) * Time.deltaTime;
-        }
-    }
-    
-    //이거 보고 참고 하면 됨
-    void ChangedFixedUpdate()
-    {
-        //가능하면 전역 변수로 활용하면 쓸 수 있는 데가 많아짐
         float inputX = Input.GetAxisRaw("Horizontal");
         float inputY = Input.GetAxisRaw("Vertical");
 
         if (isMove)
-        {   
-            playerRb.velocity = new Vector2(inputX, inputY).normalized * (moveSpeed) * Time.deltaTime;
+        {
+            playerRb.velocity = new Vector2(inputX, inputY).normalized * (moveSpeed + moveControlValue) * Time.deltaTime;
         }
-
-
     }
 
     private void Update()
@@ -78,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void IsCanMovement(string movementMessage)
     {
-        if(movementMessage == "all" || movementMessage == this.tag)
+        if(movementMessage is "all" || movementMessage == this.tag)
         {
             isMove = true;
         }

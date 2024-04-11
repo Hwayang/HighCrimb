@@ -5,6 +5,7 @@ using UnityEngine;
 public class MovementManager : MonoBehaviour
 {
     int targetNum = 0;
+    string returnTag = null;
 
     void Update()
     {
@@ -17,8 +18,6 @@ public class MovementManager : MonoBehaviour
 
     public string OrderMovement()
     {
-        string returnTag = null;
-
         switch(targetNum)
         {
             case 0:
@@ -37,4 +36,6 @@ public class MovementManager : MonoBehaviour
 
         return returnTag;
     }
+
+    public int GetTargetNum() { return targetNum; }
 }

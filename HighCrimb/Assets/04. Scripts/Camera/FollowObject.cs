@@ -2,15 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class Targets
+{
+    public GameObject target;
+}
 public class FollowObject : MonoBehaviour
 {
-    [SerializeField]
-    public GameObject targetObject; 
+    public Targets[] targetArray;
+    private MovementManager movementManager;
 
-    // Update is called once per frame
+    private void Awake()
+    {
+        movementManager = FindObjectOfType<MovementManager>();
+    }
     void Update()
     {
-        
-        transform.position = targetObject.transform.position + new Vector3(0,0,-5);
+        this.transform.position = targetArray[movementManager.GetTargetNum()].target.transform.position + new Vector3(0,0,-5);
+        Debug.Log(targetArray[movementManager.GetTargetNum()]);
     }
 }
