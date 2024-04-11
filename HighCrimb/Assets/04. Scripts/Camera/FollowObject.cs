@@ -9,16 +9,31 @@ public class Targets
 }
 public class FollowObject : MonoBehaviour
 {
+
+    [Header("카메라 기본 설정")]
+    [SerializeField]
+    public float offsetX = 0.0f;
+    public float offsetY = 0.0f;
+    public float offsetZ = 0.0f;
+
+    [Header("카메라 감도")]
+    public float cameraSpeed = 1.0f;
+
+    [Header("카메라 타겟 설정")]
     public Targets[] targetArray;
+    
     private MovementManager movementManager;
+    private int targetNum = 0;
 
     private void Awake()
     {
         movementManager = FindObjectOfType<MovementManager>();
     }
-    void Update()
+
+    void FixedUpdate()
     {
-        this.transform.position = targetArray[movementManager.GetTargetNum()].target.transform.position + new Vector3(0,0,-5);
-        Debug.Log(targetArray[movementManager.GetTargetNum()]);
+        targetNum = movementManager.GetTargetNum();
+        Vector2 pos = Vector2.Lerp(transform.position, targetArray[targetNum].target.transform.position, Time.deltaTime * cameraSpeed);
+        this.transform.position = new Vector3(pos.x, pos.y, -10);
     }
 }
