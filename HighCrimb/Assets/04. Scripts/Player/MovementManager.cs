@@ -8,14 +8,9 @@ public class MovementManager : MonoBehaviour
 
     void Update()
     {
-        if (targetNum == 3)
-        {
-            targetNum = 0;
-        }
-
         if (Input.GetButtonDown("ChangeCharacter"))
         {
-            targetNum++;
+            targetNum = targetNum + 1 > 2 ? 0 : targetNum + 1; 
             Debug.Log("targetNum : " + targetNum);
         }
     }

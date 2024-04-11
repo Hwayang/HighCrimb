@@ -40,6 +40,21 @@ public class PlayerMovement : MonoBehaviour
             playerRb.velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * (moveSpeed + moveControlValue) * Time.deltaTime;
         }
     }
+    
+    //이거 보고 참고 하면 됨
+    void ChangedFixedUpdate()
+    {
+        //가능하면 전역 변수로 활용하면 쓸 수 있는 데가 많아짐
+        float inputX = Input.GetAxisRaw("Horizontal");
+        float inputY = Input.GetAxisRaw("Vertical");
+
+        if (isMove)
+        {   
+            playerRb.velocity = new Vector2(inputX, inputY).normalized * (moveSpeed) * Time.deltaTime;
+        }
+
+
+    }
 
     private void Update()
     {
@@ -49,11 +64,11 @@ public class PlayerMovement : MonoBehaviour
     //Accel과 Decel은 다른 상호작용으로 일어날 수 있는 요소이기 때문에 public으로 타 객체에서 호출 할 수 있게 설정
     public float MoveControl()
     {
-        if(Input.GetAxisRaw("Accel") == 1)
+        if(Input.GetAxisRaw("Accel") is 1)
         {
             return accelSpeed;
         }
-        else if(Input.GetAxisRaw("Decel") == 1)
+        else if(Input.GetAxisRaw("Decel") is 1)
         {
             return -decelSpeed;
         }
