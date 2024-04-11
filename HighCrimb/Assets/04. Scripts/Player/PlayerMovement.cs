@@ -7,10 +7,6 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("이동 영역")]
     [SerializeField]
-    [Range(300, 400)]
-    public float moveSpeed = 300f;
-
-    [SerializeField]
     [Range(0, 100)]
     public float accelSpeed = 1f;
 
@@ -22,7 +18,7 @@ public class PlayerMovement : MonoBehaviour
     private MovementManager moveManager;
 
     private bool isMove = true;
-    private string receiveMoveMessage = null;
+    private string receiveTargetMessage = null;
 
     private void Awake()
     {
@@ -32,7 +28,8 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        IsCanMovement(receiveMoveMessage);
+        
+        IsCanMovement(receiveTargetMessage);
         float moveControlValue = MoveControl();
 
         float inputX = Input.GetAxisRaw("Horizontal");
@@ -40,13 +37,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (isMove)
         {
-            playerRb.velocity = new Vector2(inputX, inputY).normalized * (moveSpeed + moveControlValue) * Time.deltaTime;
+            playerRb.velocity = new Vector2(inputX, inputY).normalized * (GetComponentInParent<PlayerInfo>().GetMoveSpeed() + moveControlValue) * Time.deltaTime;
         }
     }
 
     private void Update()
     {
-        receiveMoveMessage = moveManager.OrderMovement();
+        receiveTargetMessage = moveManager.OrderMovement();
     }
 
     //Accel과 Decel은 다른 상호작용으로 일어날 수 있는 요소이기 때문에 public으로 타 객체에서 호출 할 수 있게 설정

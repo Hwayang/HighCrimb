@@ -9,13 +9,6 @@ public class Targets
 }
 public class FollowObject : MonoBehaviour
 {
-
-    [Header("카메라 기본 설정")]
-    [SerializeField]
-    public float offsetX = 0.0f;
-    public float offsetY = 0.0f;
-    public float offsetZ = 0.0f;
-
     [Header("카메라 감도")]
     public float cameraSpeed = 1.0f;
 

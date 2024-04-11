@@ -22,20 +22,17 @@ public class MovementManager : MonoBehaviour
         {
             case 0:
                 returnTag = "all";
-                Debug.Log("target : all");
                 break;
             case 1:
                 returnTag = "Player_Sister";
-                Debug.Log("target : sister");
                 break;
             case 2:
                 returnTag = "Player_Brother";
-                Debug.Log("target : brother");
                 break;
         }
 
         return returnTag;
     }
 
-    public int GetTargetNum() { return targetNum; }
+    public int GetTargetNum() { return targetNum; }   
 }
