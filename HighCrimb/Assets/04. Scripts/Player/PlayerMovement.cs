@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
+    [Header("이동 영역")]
     [SerializeField]
     [Range(300, 400)]
     public float moveSpeed = 300f;
@@ -18,17 +19,31 @@ public class PlayerMovement : MonoBehaviour
     public float decelSpeed = 1f;
 
     private Rigidbody2D playerRb;
+    private MovementManager moveManager;
+
+    private bool isMove = true;
+    private string receiveMoveMessage = null;
 
     private void Awake()
     {
         playerRb = GetComponent<Rigidbody2D>();
+        moveManager = FindObjectOfType<MovementManager>();
     }
+
     void FixedUpdate()
     {
+        IsCanMovement(receiveMoveMessage);
         float moveControlValue = MoveControl();
 
-        playerRb.velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * (moveSpeed + moveControlValue) * Time.deltaTime;
-        Debug.Log("MoveSpeed" + playerRb.velocity);
+        if (isMove)
+        {
+            playerRb.velocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized * (moveSpeed + moveControlValue) * Time.deltaTime;
+        }
+    }
+
+    private void Update()
+    {
+        receiveMoveMessage = moveManager.OrderMovement();
     }
 
     //Accel과 Decel은 다른 상호작용으로 일어날 수 있는 요소이기 때문에 public으로 타 객체에서 호출 할 수 있게 설정
@@ -44,5 +59,17 @@ public class PlayerMovement : MonoBehaviour
         }
 
         return 0f;
+    }
+
+    private void IsCanMovement(string movementMessage)
+    {
+        if(movementMessage == "all" || movementMessage == this.tag)
+        {
+            isMove = true;
+        }
+        else
+        {
+            isMove = false;
+        }
     }
 }
