@@ -4,11 +4,11 @@ using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
 using UnityEngine;
 
+
 public class PlayerState : MonoBehaviour
 {
     public static PlayerState instance = null;
-
-    public Dictionary<string, string[]> states;
+    BehaviorTree playerState = null;
     string currentState;
 
     private void Awake()
@@ -16,7 +16,7 @@ public class PlayerState : MonoBehaviour
         StateInit();
 
         //싱글톤 인스턴스 생성
-        if(null != instance)
+        if (null != instance)
         {
             instance = this;
 
@@ -30,33 +30,24 @@ public class PlayerState : MonoBehaviour
 
     private void StateInit()
     {
-        string[] moveStates = new string[] { "BowWalk", "Run", "Walk" };
-        string[] idleStates = new string[] { "Idle" };
-        string[] attackStates = new string[] { "Attack" };
-        string[] deathStates = new string[] { "Death" };
-        string[] hitStates = new string[] { "Hit" };
+        playerState = new BehaviorTree();
 
+        //BT 루트 노드 하위에 Select 노드 생성
+        playerState.root.children.Add(new ControlFlowNode("Selector"));
 
-        states.Add("Move", moveStates);
+        //Select Node 하위에 각 상태 생성
+
+        
+
+        
     }
 
     public static PlayerState GetInstance()
     {
-        if(instance == null)
+        if (instance == null)
         {
             instance = new PlayerState();
         }
         return instance;
-    }
-
-    private string ChangeState(string message)
-    {
-        
-    }
-
-    public string GetCurrentState(string message)
-    {
-        currentState = ChangeState(message);
-        return currentState;
     }
 }

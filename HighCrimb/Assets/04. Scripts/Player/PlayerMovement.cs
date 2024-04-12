@@ -68,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void ReceiveState()
     {
-        receiveStateMessage = GetComponentInParent<PlayerState>().GetCurrentState();
+        //receiveStateMessage = GetComponentInParent<PlayerState>().GetCurrentState();
     }
 
     private void IsCanMovement(string movementMessage)

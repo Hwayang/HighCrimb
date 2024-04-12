@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
-abstract class Node
+
+
+abstract public class Node
 {
     public string nodeName;
     public List<Node> children = new List<Node>();
@@ -19,7 +21,7 @@ abstract class Node
     public abstract evaluationResult Run();
 }
 
-class ControlFlowNode : Node
+public class ControlFlowNode : Node
 {
     public ControlFlowNode(string Type)
     {
@@ -28,11 +30,11 @@ class ControlFlowNode : Node
 
     public override evaluationResult Run()
     {
-        if(nodeName is "Selector")
+        if (nodeName is "Selector")
         {
             return RunSelector();
         }
-        else if(nodeName is "Sequence")
+        else if (nodeName is "Sequence")
         {
             return RunSequence();
         }
@@ -44,32 +46,32 @@ class ControlFlowNode : Node
 
     private evaluationResult RunSequence()
     {
-        for(int i = 0; i < children.Count; i++)
+        foreach (var node in children)
         {
-            if (children[i].Run() == evaluationResult.Failure)
+            if (node.Run() is evaluationResult.Failure)
             {
                 return evaluationResult.Failure;
             }
         }
-       
+
         return evaluationResult.Success;
     }
 
     private evaluationResult RunSelector()
     {
-        for (int i = 0; i < children.Count; i++)
+        foreach (var node in children)
         {
-            if (children[i].Run() == evaluationResult.Success)
+            if (node.Run() is evaluationResult.Success)
             {
                 return evaluationResult.Success;
             }
         }
-        
+
         return evaluationResult.Failure;
     }
 }
 
-class ExcutionNode : Node
+public class ExcutionNode : Node
 {
     Func<bool> targetAction;
     public ExcutionNode(Func<bool> action)
@@ -78,7 +80,7 @@ class ExcutionNode : Node
     }
     public override evaluationResult Run()
     {
-        if(targetAction())
+        if (targetAction())
         {
             return evaluationResult.Success;
         }
@@ -87,23 +89,16 @@ class ExcutionNode : Node
     }
 }
 
-class RootNode : Node
+public class RootNode : Node
 {
-    RootNode() { nodeName = "rootNode"; }
+    public RootNode() { nodeName = "rootNode"; }
 
-    public override void Run()
+    public override Node.evaluationResult Run()
     {
-        
+        return evaluationResult.Success;
     }
 }
-
-
-public class BehaviorTree : MonoBehaviour
+public class BehaviorTree
 {
-    RootNode A;
-
-    private void Awake()
-    {
-        A.children.Add(new ControlFlowNode("sequence"));
-    }
+    public RootNode root;
 }
