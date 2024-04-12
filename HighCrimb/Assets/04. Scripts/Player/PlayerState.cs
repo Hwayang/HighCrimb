@@ -6,67 +6,57 @@ using UnityEngine;
 
 public class PlayerState : MonoBehaviour
 {
-    class State
+    public static PlayerState instance = null;
+
+    public Dictionary<string, string[]> states;
+    string currentState;
+
+    private void Awake()
     {
-        public enum BasicState
+        StateInit();
+
+        //ΩÃ±€≈Ê ¿ŒΩ∫≈œΩ∫ ª˝º∫
+        if(null != instance)
         {
-            Idle,
-            Attack,
-            Hit,
-            Death
-        }
+            instance = this;
 
-        public enum MoveState
-        {
-            Walk,
-            Run,
-            BowWalk
-        }
-
-        public int currentState = (int)BasicState.Idle;
-    }
-
-    State state;
-
-    private void Update()
-    {
-        state.currentState = (int)ChangeState();
-    }
-
-    public int GetCurrentState() { return (int)this.state.currentState; }
-
-    private int ChangeState()
-    {
-        if(Input.GetAxisRaw("Vertical") == 1 || Input.GetAxisRaw("Horizontal") == 1)
-        {
-            if(Input.GetAxisRaw("Accel") == 1)
-            {
-                Debug.Log("State : Run");
-                return (int)State.MoveState.Run; 
-            }
-            else if(Input.GetAxisRaw("Decel") == 1)
-            {
-                Debug.Log("State : BowWalk");
-                return (int)State.MoveState.BowWalk;
-            }
-
-            Debug.Log("State : Walk");
-            return (int)State.MoveState.Walk;
-        }
-        else if(Input.GetAxisRaw("Attack") == 1)
-        {
-            Debug.Log("State : Attack");
-            return (int)State.BasicState.Attack;
-        }
-        else if(GetComponentInParent<PlayerInfo>().GetHP() < 0)
-        {
-            Debug.Log("State : Death");
-            return (int)State.BasicState.Death;
+            DontDestroyOnLoad(this.gameObject);
         }
         else
         {
-            Debug.Log("State : Idle");
-            return (int)State.BasicState.Idle;
+            Destroy(this.gameObject);
         }
+    }
+
+    private void StateInit()
+    {
+        string[] moveStates = new string[] { "BowWalk", "Run", "Walk" };
+        string[] idleStates = new string[] { "Idle" };
+        string[] attackStates = new string[] { "Attack" };
+        string[] deathStates = new string[] { "Death" };
+        string[] hitStates = new string[] { "Hit" };
+
+
+        states.Add("Move", moveStates);
+    }
+
+    public static PlayerState GetInstance()
+    {
+        if(instance == null)
+        {
+            instance = new PlayerState();
+        }
+        return instance;
+    }
+
+    private string ChangeState(string message)
+    {
+        
+    }
+
+    public string GetCurrentState(string message)
+    {
+        currentState = ChangeState(message);
+        return currentState;
     }
 }

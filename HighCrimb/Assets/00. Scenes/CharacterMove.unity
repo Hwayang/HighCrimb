@@ -278,6 +278,81 @@ MonoBehaviour:
   - target: {fileID: 1460747886}
   - target: {fileID: 1460747886}
   - target: {fileID: 1162585172}
+--- !u!1 &359515599
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 359515600}
+  - component: {fileID: 359515602}
+  - component: {fileID: 359515601}
+  m_Layer: 0
+  m_Name: PlayerStateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &359515600
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359515599}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1552900300}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &359515601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359515599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d14ceb6c197ffb4a9b70bca06706031, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  states:
+  - name: Idle
+    states:
+    - Idle
+  - name: Move
+    states:
+    - Walk
+    - Run
+    - BowWalk
+  - name: Attack
+    states:
+    - Attack
+  - name: Hit
+    states:
+    - Hit
+  - name: Death
+    states:
+    - Death
+--- !u!114 &359515602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 359515599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b120a5d0fac69154db20f6b043ac4627, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &496376409
 GameObject:
   m_ObjectHideFlags: 0
@@ -437,11 +512,11 @@ Transform:
   m_GameObject: {fileID: 1162585172}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.8785769, y: -0.17540425, z: -1}
+  m_LocalPosition: {x: -0.89157605, y: -0.12774053, z: 8.984357}
   m_LocalScale: {x: 0.7122, y: 0.6643, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1552900300}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1162585174
 MonoBehaviour:
@@ -754,11 +829,11 @@ Transform:
   m_GameObject: {fileID: 1460747886}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalPosition: {x: -0.012999196, y: 0.04766372, z: 8.984357}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1552900300}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1460747892
 MonoBehaviour:
@@ -784,12 +859,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b120a5d0fac69154db20f6b043ac4627, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1552900299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1552900300}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1552900300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1552900299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.012999196, y: -0.04766372, z: -9.984357}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 359515600}
+  - {fileID: 1162585173}
+  - {fileID: 1460747891}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 40582244}
   - {fileID: 496376411}
-  - {fileID: 1460747891}
-  - {fileID: 1162585173}
+  - {fileID: 1552900300}
   - {fileID: 958680010}
