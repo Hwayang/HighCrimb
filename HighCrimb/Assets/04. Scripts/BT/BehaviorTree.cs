@@ -11,14 +11,14 @@ abstract public class Node
     public string nodeName;
     public List<Node> children = new List<Node>();
 
-    public enum evaluationResult
+    public enum EvaluationResult
     {
         Failure,
         Running,
         Success
     }
 
-    public abstract evaluationResult Run();
+    public abstract EvaluationResult Run();
 }
 
 public class ControlFlowNode : Node
@@ -28,7 +28,7 @@ public class ControlFlowNode : Node
         nodeName = Type;
     }
 
-    public override evaluationResult Run()
+    public override EvaluationResult Run()
     {
         if (nodeName is "Selector")
         {
@@ -40,34 +40,34 @@ public class ControlFlowNode : Node
         }
         else
         {
-            return evaluationResult.Failure;
+            return EvaluationResult.Failure;
         }
     }
 
-    private evaluationResult RunSequence()
+    private EvaluationResult RunSequence()
     {
         foreach (var node in children)
         {
-            if (node.Run() is evaluationResult.Failure)
+            if (node.Run() is EvaluationResult.Failure)
             {
-                return evaluationResult.Failure;
+                return EvaluationResult.Failure;
             }
         }
 
-        return evaluationResult.Success;
+        return EvaluationResult.Success;
     }
 
-    private evaluationResult RunSelector()
+    private EvaluationResult RunSelector()
     {
         foreach (var node in children)
         {
-            if (node.Run() is evaluationResult.Success)
+            if (node.Run() is EvaluationResult.Success)
             {
-                return evaluationResult.Success;
+                return EvaluationResult.Success;
             }
         }
 
-        return evaluationResult.Failure;
+        return EvaluationResult.Failure;
     }
 }
 
@@ -78,14 +78,14 @@ public class ExcutionNode : Node
     {
         targetAction = action;
     }
-    public override evaluationResult Run()
+    public override EvaluationResult Run()
     {
         if (targetAction())
         {
-            return evaluationResult.Success;
+            return EvaluationResult.Success;
         }
 
-        return evaluationResult.Failure;
+        return EvaluationResult.Failure;
     }
 }
 
@@ -93,9 +93,9 @@ public class RootNode : Node
 {
     public RootNode() { nodeName = "rootNode"; }
 
-    public override Node.evaluationResult Run()
+    public override Node.EvaluationResult Run()
     {
-        return evaluationResult.Success;
+        return EvaluationResult.Success;
     }
 }
 public class BehaviorTree

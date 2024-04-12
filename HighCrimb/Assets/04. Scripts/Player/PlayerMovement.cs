@@ -54,11 +54,11 @@ public class PlayerMovement : MonoBehaviour
     {
         ReceiveState();
         
-        if(receiveStateMessage == 1)
+        if(receiveStateMessage is 1)
         {
             return accelSpeed;
         }
-        else if (receiveStateMessage == 2)
+        else if (receiveStateMessage is 2)
         {
             return -decelSpeed;
         }

@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class PlayerState : MonoBehaviour
 {
-    public static PlayerState instance = null;
-    BehaviorTree playerState = null;
+    public static PlayerState instance;
+    BehaviorTree playerState;
     string currentState;
 
     private void Awake()
@@ -16,7 +16,7 @@ public class PlayerState : MonoBehaviour
         StateInit();
 
         //ΩÃ±€≈Ê ¿ŒΩ∫≈œΩ∫ ª˝º∫
-        if (null != instance)
+        if (instance is not null)
         {
             instance = this;
 
@@ -44,7 +44,7 @@ public class PlayerState : MonoBehaviour
 
     public static PlayerState GetInstance()
     {
-        if (instance == null)
+        if (instance is null)
         {
             instance = new PlayerState();
         }

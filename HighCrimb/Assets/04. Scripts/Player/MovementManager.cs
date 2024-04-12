@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MovementManager : MonoBehaviour
+public sealed class MovementManager : MonoBehaviour
 {
     int targetNum = 0;
     string returnTag = null;
