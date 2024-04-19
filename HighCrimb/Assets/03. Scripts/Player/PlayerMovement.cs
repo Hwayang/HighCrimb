@@ -4,83 +4,99 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private float horizontal;
-    private bool isFacingRight = true;
-    private bool isWallSliding;
-    private bool isWallJumping;
-    private float wallJumpingDirection;
-    private float wallJumpingCounter;
-    
+    private float horizontal; //방향값을 받아오는 변수
+    private bool isFacingRight = true;  //오른쪽을 바라보고 있는지를 판정하는 변수
+    private Rigidbody2D rigid;
+    private bool isJump = false;
+    private bool isGround = true;
+    private float jumpTimeCounter = 0;
 
-    [Header("플레이어 설정")] [SerializeField] private float moveSpeed;
-    [SerializeField] private float jumpPower;
-    [SerializeField] private float acceleration;
-    [SerializeField] private float decceleration;
-    [SerializeField] [Range(0, 1)] private float velPower;
-    [SerializeField] [Range(0, 1)] private float downScale;
-    [SerializeField] private float wallSlidingSpeed;
-    [SerializeField] private float wallJumpingTime;
-    [SerializeField] private float wallJumpingDuration;
-    [SerializeField] private Vector2 wallJumpingPower;
+    [Header("플레이어 설정")]
+    [Header("좌, 우 움직임 세부 설정")]
+    [SerializeField] private float moveSpeed; //이동 속도
+    [SerializeField] private float jumpForce; //점프 힘
+    [SerializeField] private float airCorrectionValue; //체공 시 보정값
+    [SerializeField] private float acceleration; //이동 시작 시 가속 보정값
+    [SerializeField] private float decceleration; //이동 종료 시 감속 보정값
+    [SerializeField] [Range(0, 1)] private float velPower; //속도 그래프 보정값
+    [SerializeField] private float jumpTime; //점프 가능 시간
 
-    [Space]
-    [SerializeField] [Range(0, 1)] private float groundCheckRange;
-    [SerializeField] [Range(0, 1)] private float wallCheckRange;
+    [Header("기타 플레이어 세부 설정")]
+    [SerializeField] [Range(0, 1)] private float downScale; //떨어질 때의 속도값
 
-    [Space] [Header("객체 설정")]
-    [SerializeField] private Rigidbody2D _rigid;
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private Transform wallCheck;
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private LayerMask wallLayer;
 
-    // Update is called once per frame
+    private void Awake()
+    {
+        rigid = GetComponent<Rigidbody2D>();
+    }
+
     void Update()
     {
         /*
-        키 다운과 같은 단발성 커맨드를 FixedUpdate로 두었을 때 물리 프레임과 충돌하기에 오류가 발생할 가능성이 높음.
-        이에 따라 Update에서 물리 프레임이 원활하게 돌아갈 수 있도록 설정
+        물리 프레임은 FixedUpdate에서 동작함. 이에 따라 FixedUpdate보다 더 많이 호출되는 Update에 물리 프레임을 호출하여
+        프레임간의 충돌을 방지하도록 설계함
         */
 
         horizontal = Input.GetAxis("Horizontal");
-
-        if (Input.GetButtonDown("Jump") && IsGrounded())
-        {
-            _rigid.velocity = new Vector2(_rigid.velocity.x, jumpPower);
-        }
-
-        if (Input.GetButtonUp("Jump") && _rigid.velocity.y > 0f)
-        {
-            _rigid.velocity = new Vector2(_rigid.velocity.x, _rigid.velocity.y * downScale);
-        }
-
-        WallSlide();
-        WallJump();
-
-        if(!isWallJumping)
-        {
-            Flip();
-        }
+        Flip();
+        GroundCheck();
+        Jump();
     }
-    private bool IsGrounded()
-    {
-        return Physics2D.OverlapCircle(groundCheck.position, groundCheckRange, groundLayer);
-    }
-
     private void FixedUpdate()
     {
-        if (!isWallJumping)
-            Movement();
+        Movement();
+    }
+
+    private void Jump()
+    {
+
+        if (Input.GetKeyDown(KeyCode.X) && isGround is true)
+        {
+            isJump = true;
+            jumpTimeCounter = jumpTime;
+            rigid.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
+
+        if (Input.GetKey(KeyCode.X) && isJump is true)
+        {
+            if(jumpTimeCounter > 0)
+            {
+                rigid.AddForce(Vector2.up * airCorrectionValue, ForceMode2D.Impulse);
+                jumpTimeCounter -= Time.deltaTime;
+            }
+            else
+            {
+                isJump = false;
+            }
+        }
+
+        if(Input.GetKeyUp(KeyCode.X))
+        {
+            rigid.AddForce(Vector2.down * downScale, ForceMode2D.Impulse);
+            isJump = false;
+        }
+    }
+
+    private void GroundCheck()
+    {
+        RaycastHit2D rayHit = Physics2D.Raycast(rigid.position, Vector3.down, 0.1f, LayerMask.GetMask("Ground"));
+        Debug.DrawRay(rigid.position, Vector3.down, new Color(0, 1, 0));
+
+        isGround = rayHit.collider != null;
+
+        Debug.Log(isGround);
+        return;
+
     }
 
     private void Movement()
     {
         float moveInput = horizontal;
         float targetSpeed = moveInput * moveSpeed;
-        float speedDif = targetSpeed - _rigid.velocity.x;
+        float speedDif = targetSpeed - rigid.velocity.x;
         float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : decceleration;
         float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
-        _rigid.AddForce(movement * Vector2.right);
+        rigid.AddForce(movement * Vector2.right);
     }
 
     private void Flip()
@@ -90,68 +106,10 @@ public class PlayerMovement : MonoBehaviour
             isFacingRight = !isFacingRight;
 
             //x축 크기 값에 음수를 곱해주어 반대로 리소스가 적용되도록
-            //localScale은 Vector3이므로 바로 접근해서 수정할 수 없으므로 변수에 담아 수정
+            //localScale은 Read Only이므로 바로 접근해서 수정할 수 없으므로 변수에 담아 수정
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
         }
     }
-
-    private bool IsWalled()
-    {
-        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
-    }
-
-    private void WallSlide()
-    {
-        if (IsWalled() && !IsGrounded() && horizontal != 0f)
-        {
-            isWallSliding = true;
-            _rigid.velocity = new Vector2(_rigid.velocity.x, Mathf.Clamp(_rigid.velocity.y, -wallSlidingSpeed, float.MaxValue));
-        }
-        else
-        {
-            isWallSliding = false;
-        }
-    }
-
-    private void WallJump()
-    {
-        if (isWallSliding)
-        {
-            isWallJumping = false;
-            wallJumpingDirection = -transform.localScale.x;
-            wallJumpingCounter = wallJumpingTime;
-
-            CancelInvoke(nameof(StopWallJumping));
-        }
-        else
-        {
-            wallJumpingCounter -= Time.deltaTime;
-        }
-
-        if (Input.GetButtonDown("Jump") && wallJumpingCounter > 0f)
-        {
-            isWallJumping = true;
-            _rigid.velocity = new Vector2(wallJumpingDirection * wallJumpingPower.x, wallJumpingPower.y);
-            wallJumpingCounter = 0f;
-
-            if (transform.localScale.x != wallJumpingDirection)
-            {
-                isFacingRight = !isFacingRight;
-                Vector3 localScale = transform.localScale;
-                localScale.x *= -1f;
-                transform.localScale = localScale;
-            }
-
-            Invoke(nameof(StopWallJumping), wallJumpingDuration);
-        }
-    }
-
-    private void StopWallJumping()
-    {
-        isWallJumping = false;
-    }
-
-
 }
