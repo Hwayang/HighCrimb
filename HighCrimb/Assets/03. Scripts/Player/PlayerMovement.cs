@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,11 +6,13 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private float horizontal; //방향값을 받아오는 변수
-    private bool isFacingRight = true;  //오른쪽을 바라보고 있는지를 판정하는 변수
+    private float isFacingRight = 1;  //오른쪽을 바라보고 있는지를 판정하는 변수
     private Rigidbody2D rigid;
-    private bool isJump = false;
-    private bool isGround = true;
-    private float jumpTimeCounter = 0;
+    private bool isJump = false; //현재 점프 중인지 판단하는 변수
+    private bool isGround = true; // 현재 땅에 붙어있는지 판단하는 변수
+    private float jumpTimeCounter = 0; // 체공 시간을 조절하는 변수
+    private bool isWall = false; //현재 벽에 붙어있는지 판단하는 변수
+    private bool isWallJump = false; //벽점프를 시행했는지 판단하는 변수
 
     [Header("플레이어 설정")]
     [Header("좌, 우 움직임 세부 설정")]
@@ -18,12 +21,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float airCorrectionValue; //체공 시 보정값
     [SerializeField] private float acceleration; //이동 시작 시 가속 보정값
     [SerializeField] private float decceleration; //이동 종료 시 감속 보정값
-    [SerializeField] [Range(0, 1)] private float velPower; //속도 그래프 보정값
+    [SerializeField][Range(0, 1)] private float velPower; //속도 그래프 보정값
     [SerializeField] private float jumpTime; //점프 가능 시간
 
     [Header("기타 플레이어 세부 설정")]
-    [SerializeField] [Range(0, 1)] private float downScale; //떨어질 때의 속도값
-
+    [SerializeField][Range(0, 1)] private float downScale; //떨어질 때의 속도값
 
     private void Awake()
     {
@@ -40,7 +42,10 @@ public class PlayerMovement : MonoBehaviour
         horizontal = Input.GetAxis("Horizontal");
         Flip();
         GroundCheck();
+        WallCheck();
         Jump();
+        WallSlide();
+        WallJump();
     }
     private void FixedUpdate()
     {
@@ -59,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKey(KeyCode.X) && isJump is true)
         {
-            if(jumpTimeCounter > 0)
+            if (jumpTimeCounter > 0)
             {
                 rigid.AddForce(Vector2.up * airCorrectionValue, ForceMode2D.Impulse);
                 jumpTimeCounter -= Time.deltaTime;
@@ -70,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyUp(KeyCode.X))
+        if (Input.GetKeyUp(KeyCode.X))
         {
             rigid.AddForce(Vector2.down * downScale, ForceMode2D.Impulse);
             isJump = false;
@@ -83,27 +88,68 @@ public class PlayerMovement : MonoBehaviour
         Debug.DrawRay(rigid.position, Vector3.down, new Color(0, 1, 0));
 
         isGround = rayHit.collider != null;
+    }
 
-        Debug.Log(isGround);
-        return;
+    private void WallCheck()
+    {
+        RaycastHit2D rayHit = Physics2D.Raycast(rigid.position, Vector2.right * isFacingRight, 0.3f, LayerMask.GetMask("Wall"));
+        Debug.DrawRay(rigid.position, Vector2.right * isFacingRight, new Color(1, 0, 0));
 
+        isWall = rayHit.collider != null;
+        Debug.Log(isWall);
+    }
+
+    private void WallSlide()
+    {
+        if(isWall)
+        {
+            //todo : 시간이 지날수록 떨어지는 속도가 더 빠르게
+            rigid.velocity = new Vector2(rigid.velocity.x, rigid.velocity.y * downScale);
+        }
+    }
+
+    private void WallJump()
+    {
+        if(isWall)
+        {
+            isWallJump = false;
+
+            if (Input.GetKeyDown(KeyCode.X))
+            {
+                isWallJump = true;
+                Invoke("FreezX", 0.3f);
+                Vector2 target = new Vector2(-isFacingRight * jumpForce, jumpForce);
+                isJump = true;
+                rigid.AddForce(target, ForceMode2D.Impulse);
+
+                Flip();
+            }
+        }
+    }
+
+    private void FreezX()
+    {
+        isWallJump = false;
     }
 
     private void Movement()
     {
-        float moveInput = horizontal;
-        float targetSpeed = moveInput * moveSpeed;
-        float speedDif = targetSpeed - rigid.velocity.x;
-        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : decceleration;
-        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
-        rigid.AddForce(movement * Vector2.right);
+        if (!isWallJump)
+        {
+            float moveInput = horizontal;
+            float targetSpeed = moveInput * moveSpeed;
+            float speedDif = targetSpeed - rigid.velocity.x;
+            float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : decceleration;
+            float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
+            rigid.AddForce(movement * Vector2.right);
+        }
     }
 
     private void Flip()
     {
-        if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
+        if (isFacingRight == 1 && horizontal < 0f || isFacingRight < 0 && horizontal > 0f)
         {
-            isFacingRight = !isFacingRight;
+            isFacingRight = -isFacingRight;
 
             //x축 크기 값에 음수를 곱해주어 반대로 리소스가 적용되도록
             //localScale은 Read Only이므로 바로 접근해서 수정할 수 없으므로 변수에 담아 수정
